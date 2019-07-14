@@ -1,0 +1,188 @@
+{% if owncase %}
+    <div class="row" style="margin: 5px;" >
+        <form role="form" id="editCaseForm" name="editCaseForm" class="form" action="#" method="post" enctype="multipart/form-data">
+            <input type="hidden" id="case_id" name="case_id" value="{{case.id}}">
+
+            {% if case.state != 'Closed' %}
+                <button id="endCase" class="btn btn-sm btn-primary m-t-n-xs" type="submit"><strong>Enquiry resolved</strong></button>
+            {% endif %}
+        </form>
+    </div>
+    <div class="row case">
+        <div class="col-lg-6">
+            <div class="hpanel hblue">
+                <div class="panel-heading hbuilt">
+                    <div class="panel-tools">
+                        <a class="showhide"><i class="fa fa-chevron-up"></i></a>
+                    </div>
+                    {{case.title}}
+                </div>
+                <div class="panel-body">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <th>Number</th>
+                                <td>{{case.number}}</td>
+                            </tr>
+                            <tr>
+                                <th>Status</th>
+                                <td>{{ case.status }}</td>
+                            </tr>
+                            <tr>
+                                <th>Date Created </th>
+                                <td>
+                                    {{case.created_date}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Date Modified </th>
+                                <td>
+                                    {{case.modified_date}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Category</th>
+                                <td>{{ case.category }}</td>
+                            </tr>
+                            <tr>
+                                <th>Subcategory</th>
+                                {% if(case.subcategory is not empty) %}
+                                 <td>{{ case.subcategory }}</td>
+                                {% else %}
+                                 <td>N/A</td>   
+                                {% endif %}
+                            </tr>
+                            <tr>
+                                <th>Description</th>
+                                <td>{{ case.description|raw('html') }}</td>
+                            </tr>
+                            {% if case.related %}
+                                <tr>
+                                    <th>Related</th>
+                                    <td>
+                                        <a href="../../eoi/applications/{{case.related.id}}" title="View {{case.related.type}}">
+                                            View {{case.related.type}}
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="hpanel hblue chatDiscussionPanel">
+                <div class="panel-heading hbuilt">
+                    <div class="panel-tools">
+                        <a class="showhide"><i class="fa fa-chevron-up"></i></a>
+                    </div>
+                    Discussion
+                </div>
+                <div class="panel-body">
+                    <div class="chat-discussion">
+                        {% if case.aop_case_updates %}
+                            {% for update in case.aop_case_updates %}
+                                <div class="message message-{{update.poster.type}}">
+                                    <span class="message-author">{{update.poster.first_name}} {{update.poster.last_name}}</span>
+                                    <span class="message-date prettyDate">{{update.date_modified_display}}</span>
+                                    <span class="message-content">{{update.description|raw('html')}}</span>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+                {% if case.state != 'Closed' %}
+                    <div class="panel-footer">
+                        <form class="reply_form" action="#" method="post" id="replyForm" name="replyForm" enctype="multipart/form-data">
+                            <div class="input-group">
+                                <input type="hidden" id="case_id" name="case_id" value="{{case.id}}">
+                                <label class="hide" for="update_text">Reply Message</label>
+                                <input type="text" name='update_text' id='update_text' class="form-control" placeholder="Type your message here...">
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-success" name="caseUpdateReply" id='caseUpdateReply'>Send Reply</button>
+                                </span>
+                            </div>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="hpanel hblue">
+                <div class="panel-heading hbuilt">
+                    <div class="panel-tools">
+                        <a class="showhide"><i class="fa fa-chevron-up"></i></a>
+                    </div>
+                    Documents
+                </div>
+                <div class="panel-body">
+                    <table id="casedocuments" class="table table-striped table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>File</th>
+                                <th>Published Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for file in case.files %}
+                                <tr>
+                                    <td>{{ file.document_name }}</td>
+                                    <td>
+                                        <a href="getDocument?doc_id={{ file.document_revision_id }}" target="_new">
+                                            {{ file.document_name }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        {{ file.active_date }}
+                                    </td>
+                                </tr>
+                            {%  endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="hpanel hblue relatedKBpanel">
+                <div class="panel-heading hbuilt">
+                    <div class="panel-tools">
+                        <a class="showhide"><i class="fa fa-chevron-up"></i></a>
+                    </div>
+                    Related Knowledge Base
+                </div>
+                <div class="panel-body tableDiv">
+                    <!-- Table Gets Dynamically Built Here -->
+                    <table id="caseKBtable" class="table table-striped" cellspacing="0" width="100%">
+                        <thead>
+                        <tr>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            {% if case.state != 'Closed' %}
+                <div class="hpanel hblue uploadPanel">
+                    <div class="panel-heading hbuilt">
+                        <div class="panel-tools">
+                            <a class="showhide"><i class="fa fa-chevron-up"></i></a>
+                        </div>
+                        Upload more documents
+                    </div>
+                    <div class="panel-body">
+                        <div class= "alert-danger"></div>
+                        <form role="form" id="uploadForm" name="uploadForm" class="form" action="../#" method="post" enctype="multipart/form-data" validate>
+                            <div id="view-case-dropzone" class="dropzone" style="min-height: 120px; margin-top: 1.5em; margin-bottom: 1em;"></div>
+                            <div>
+                                <button id="uploadSubmit" class="btn btn-sm btn-primary m-t-n-xs" type="submit"><strong>Upload</strong></button>
+                                <small>Accepted file types: jpg; png; gif; pdf; doc; docx; xls; xlsx, or text/plain.  (Max 10MB)</small>
+                            </div>
+                            <input type="hidden" id="for_case_id" name="for_case_id" value="{{case.id}}">
+                            <input type="hidden" name="type" value="Administration" />
+                            <input type="hidden" name="priority" value="P1" />
+                        </form>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endif %}

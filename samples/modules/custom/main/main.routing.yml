@@ -1,0 +1,303 @@
+main.home:
+  path: '/dashboard'
+  defaults:
+    _controller: '\Drupal\main\Controller\MainController::home'
+    _title: ''
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'TRUE'
+
+main.cases:
+  path: '/enquiries'
+  defaults:
+    _controller: '\Drupal\main\Controller\CasesController::listCases'
+    _title: 'Enquiries'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'TRUE'
+
+main.mycase:
+  path: '/enquiries/enquiry/{case_id}'
+  defaults:
+    _controller: '\Drupal\main\Controller\CasesController::view'
+    _title: 'View Enquiry'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'TRUE'
+
+main.newcase:
+  path: '/enquiries/newenquiry'
+  defaults:
+    _controller: '\Drupal\main\Controller\CasesController::newCase'
+    _title: 'Create Enquiry'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'TRUE'
+main.newcase.error:
+  path: '/enquiries/newenquiry/{error_state}'
+  defaults:
+    _controller: '\Drupal\main\Controller\CasesController::newCase'
+    _title: 'Create Enquiry'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'TRUE'
+
+main.fetchCategories:
+  path: '/enquiries/fetchcategories'
+  defaults:
+    _controller: '\Drupal\main\Controller\CasesController::fetchCategories'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'TRUE'
+
+main.fetchSubcategories:
+  path: '/enquiries/fetchsubcategories'
+  defaults:
+    _controller: '\Drupal\main\Controller\CasesController::fetchSubcategories'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'TRUE'
+
+main.feedback:
+  path: '/enquiries/feedback'
+  defaults:
+    _controller: '\Drupal\main\Controller\CasesController::addFeedback'
+    _title: 'Provide Enquiry Feedback'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'TRUE'
+
+main.notifications:
+  path: '/messages'
+  defaults:
+    _controller: '\Drupal\main\Controller\MainController::notifications'
+    _title: 'Messages'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'TRUE'
+
+main.mynotification:
+  path: '/messages/message/{notification_id}'
+  defaults:
+    _controller: '\Drupal\main\Controller\MainController::mynotification'
+    _title: 'View Message'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'TRUE'
+    
+main.faqs:
+  path: '/knowledgebase/faqs'
+  defaults:
+    _controller: '\Drupal\main\Controller\MainController::faqs'
+    _title: 'Frequently Asked Questions'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'TRUE'
+
+main.viewFAQ:
+  path: '/knowledgebase/faqs/{faq_id}'
+  defaults:
+    _controller: '\Drupal\main\Controller\MainController::faq'
+    _title: 'FAQ'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'TRUE'
+    
+main.faqs.getDocument:
+  path: '/knowledgebase/faqs/getDocument'
+  defaults:
+    _controller: '\Drupal\main\Controller\CasesController::getDocument'
+    _title: 'Retrieve a FAQ document'
+  requirements:
+    _permission: 'access content'    
+    _user_is_logged_in: 'TRUE' 
+
+main.kbNav:
+  path: '/knowledgebase'
+  defaults:
+    _controller: '\Drupal\main\Controller\MainController::knowledgebase'
+    _title: 'Knowledge base'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'TRUE'
+
+main.kb:
+  path: '/knowledgebase/articles'
+  defaults:
+    _controller: '\Drupal\main\Controller\MainController::articles'
+    _title: 'Articles'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'TRUE'
+
+main.viewKB:
+  path: '/knowledgebase/articles/{kb_id}'
+  defaults:
+    _controller: '\Drupal\main\Controller\MainController::article'
+    _title: 'KBA'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'TRUE'
+
+main.kb.getDocument:
+  path: '/knowledgebase/articles/getDocument'
+  defaults:
+    _controller: '\Drupal\main\Controller\CasesController::getDocument'
+    _title: 'Retrieve a document'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'TRUE'
+
+
+main.library:
+  path: '/library'
+  defaults:
+    _controller: '\Drupal\main\Controller\MainController::library'
+    _title: 'Document library'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'TRUE'
+
+main.viewDocument:
+  path: '/library/{document_id}'
+  defaults:
+    _controller: '\Drupal\main\Controller\MainController::viewDocument'
+    _title: 'View document'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'TRUE'
+
+main.library.getDocument:
+  path: '/library/getDocument'
+  defaults:
+    _controller: '\Drupal\main\Controller\CasesController::getDocument'
+    _title: 'Retrieve Document Revision'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'TRUE'
+
+main.getAccount:
+  path: '/services/getAccount'
+  defaults:
+    _controller: '\Drupal\main\Controller\ApplicationController::getAccount'
+    _title: 'Get CRM Account Details'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'TRUE' 
+    
+main.fetchCases:
+  path: '/enquiries/fetchCases'
+  defaults:
+    _controller: '\Drupal\main\Controller\CasesController::fetchCases'
+    _title: 'Fetch CRM Cases'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'TRUE' 
+    
+main.fetchCase:
+  path: '/enquiries/fetchCase'
+  defaults:
+    _controller: '\Drupal\main\Controller\CasesController::fetchCase'
+    _title: 'Fetch Case'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'TRUE' 
+    
+main.addCase:
+  path: '/enquiries/saveEnquiry'
+  defaults:
+    _controller: '\Drupal\main\Controller\CasesController::addCase'
+    _title: 'Add Enquiry'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'TRUE' 
+    
+main.addCaseFiles:
+  path: '/enquiries/enquiry/addCaseFiles'
+  defaults:
+    _controller: '\Drupal\main\Controller\CasesController::addCaseFiles'
+    _title: 'Add CRM Case Files'
+  requirements:
+    _permission: 'access content'    
+    _user_is_logged_in: 'TRUE' 
+    
+main.addFiles:
+  path: '/enquiries/enquiry/addFiles'
+  defaults:
+    _controller: '\Drupal\main\Controller\CasesController::addFiles'
+    _title: 'Add Files to CRM Case'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'TRUE'
+
+main.cases.getDocument:
+  path: '/enquiries/enquiry/getDocument'
+  defaults:
+    _controller: '\Drupal\main\Controller\CasesController::getDocument'
+    _title: 'Retrieve Document Revision'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'TRUE' 
+
+main.addCaseUpdate:
+  path: '/enquiries/enquiry/addCaseUpdate'
+  defaults:
+    _controller: '\Drupal\main\Controller\CasesController::addCaseUpdate'
+    _title: 'Add Case Update'
+  requirements:
+    _permission: 'access content'        
+    _user_is_logged_in: 'TRUE' 
+
+main.endCase:
+  path: '/enquiries/enquiry/endCase'
+  defaults:
+    _controller: '\Drupal\main\Controller\CasesController::endCase'
+    _title: 'Enquiry Resolved'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'TRUE'
+
+main.notifications.fetchNotification:
+  path: '/messages/fetchNotification'
+  defaults:
+    _controller: '\Drupal\main\Controller\NotificationsSuiteCrmController::fetchNotification'
+    _title: 'Fetch Notification'
+  requirements:
+    _permission: 'access content'        
+    _user_is_logged_in: 'TRUE' 
+    
+main.notifications.fetchUnreadNotifications:
+  path: '/messages/fetchUnreadNotifications'
+  defaults:
+    _controller: '\Drupal\main\Controller\NotificationsSuiteCrmController::fetchUnreadNotifications'
+    _title: 'Fetch Unread Notifications'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'TRUE' 
+
+main.notifications.markRead:
+  path: '/messages/message/markRead'
+  defaults:
+    _controller: '\Drupal\main\Controller\NotificationsSuiteCrmController::markRead'
+    _title: 'Mark Notification Read'
+  requirements:
+    _permission: 'access content'   
+    _user_is_logged_in: 'TRUE'
+
+main.profile.organisation:
+  path: '/profile/organisation'
+  defaults:
+    _controller: '\Drupal\main\Controller\MainController::organisationProfile'
+    _title: 'Organisation Profile'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'TRUE'
+
+main.profile.contact:
+  path: '/profile/contact'
+  defaults:
+    _controller: '\Drupal\main\Controller\MainController::contactProfile'
+    _title: 'Contact Profile'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'TRUE'
