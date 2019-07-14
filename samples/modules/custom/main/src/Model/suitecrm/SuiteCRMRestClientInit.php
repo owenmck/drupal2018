@@ -20,9 +20,9 @@ class SuiteCRMRestClientInit {
     const CASES_MODULE_PRIMARY = 'Cases';
     const CASES_MODULE_RELATED = 'cases';
     const CASE_STATUS_FIELD = 'mt_case_status_id_c';
-    const CASE_STATUS_NEW = 'Awaiting RTO Response'; 
+    const CASE_STATUS_NEW = 'Pending';
     const CASE_STATUS_MODULE = 'MT_Case_Status';
-    const CASE_STATUS_USER_CLOSED = 'Closed';
+    const CASE_STATUS_USER_CLOSED = 'Resolved';
     const CASE_TYPE_ENQUIRY = 'Enquiry';
     const CONTACT = 'contact';
     const CONTACT_DEPT = 'please contact DET for further information. ';

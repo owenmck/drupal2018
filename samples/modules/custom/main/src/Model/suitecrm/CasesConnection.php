@@ -30,14 +30,64 @@ class CasesConnection extends SuiteCRMRestClientInit
         'parent_id',
         self::DATE_CLOSED,
         'update_text',
-        'case_status_c',
-        'external_case_status_c'
+        'mt_case_status_id_c',
     ];
-    private $case_update_fields = ['id',                            self::NAME,                  self::DATE_ENTERED, self::DATE_MODIFIED, 'category_c', 'subcategory_c', self::DESCRIPTION, self::CONTACT, 'contact_id', 'internal', 'assigned_user_id', 'external_case_status_c'];
-    private $contact_fields     = ['id', 'first_name', 'last_name',                              self::DATE_ENTERED, self::DATE_MODIFIED,                                self::DESCRIPTION, 'portal_user_type', 'account_id', 'joomla_account_id'];
-    private $user_fields        = ['id', 'first_name', 'last_name',                              self::DATE_ENTERED, self::DATE_MODIFIED,                                self::DESCRIPTION];
-    private $note_fields        = ['id',                            self::NAME,                  self::DATE_ENTERED, self::DATE_MODIFIED,                                self::DESCRIPTION, 'filename', 'file_url'];
-    private $document_fields    = ['id', 'document_revision_id',    self::NAME, 'template_type',   self::DOCUMENT_NAME, 'active_date'];
+    private $case_status_fields = [
+        'id',
+        'name',
+        'is_visible_on_portal',
+        'case_state',
+        'placeholder_for_portal_status',
+    ];
+    private $case_update_fields = [
+        'id',
+        self::NAME,
+        self::DATE_ENTERED,
+        self::DATE_MODIFIED,
+        'category_c',
+        'subcategory_c',
+        self::DESCRIPTION,
+        self::CONTACT,
+        'contact_id',
+        'internal',
+        'assigned_user_id',
+    ];
+    private $contact_fields = [
+        'id',
+        'first_name',
+        'last_name',
+        self::DATE_ENTERED,
+        self::DATE_MODIFIED,
+        self::DESCRIPTION,
+        'portal_user_type',
+        'account_id',
+        'joomla_account_id',
+    ];
+    private $user_fields = [
+        'id',
+        'first_name',
+        'last_name',
+        self::DATE_ENTERED,
+        self::DATE_MODIFIED,
+        self::DESCRIPTION,
+    ];
+    private $note_fields = [
+        'id',
+        self::NAME,
+        self::DATE_ENTERED,
+        self::DATE_MODIFIED,
+        self::DESCRIPTION,
+        'filename',
+        'file_url'
+    ];
+    private $document_fields = [
+        'id',
+        'document_revision_id',
+        self::NAME,
+        'template_type',
+        self::DOCUMENT_NAME,
+        'active_date'
+    ];
     private static $singleton;
 
     public static function getInstance()
@@ -205,7 +255,8 @@ class CasesConnection extends SuiteCRMRestClientInit
         ];
 
         $updateData = $this->restClient->getEntry('AOP_Case_Updates', $update_id, $this->case_update_fields, $data);
-        return new SugarUpdate($updateData[self::ENTRY_LIST][0], $updateData[self::RELATIONSHIP_LIST][0]);
+        $result = new SugarUpdate($updateData[self::ENTRY_LIST][0], $updateData[self::RELATIONSHIP_LIST][0]);
+        return $result;
     }
 
     public function getNoteAttachment($note_id)
@@ -215,9 +266,11 @@ class CasesConnection extends SuiteCRMRestClientInit
     }
 
     /**
-     * Get an array of data from, and metadata about, non-private documents linked to the given entity id (e.g. an rto enquiry).
+     * Get an array of data from, and metadata about, non-private documents linked to the given entity id
+     * (e.g. an rto enquiry).
      *
-     * Note that data from all related documents not specifically identified as having "private" visibility will be retrieved.
+     * Note that data from all related documents not specifically identified as having "private" visibility
+     * will be retrieved.
      *
      * @param string $case_id  A Guid uniquely identifies the case.
      *
@@ -265,18 +318,35 @@ class CasesConnection extends SuiteCRMRestClientInit
         \Drupal::logger('main')->debug(__METHOD__ . ', case ' . $case_id);
 
         if ( $ownCase) {
-            $caseUpdatesFieldsArray =
-                [
-                    [self::NAME => self::CONTACT,       self::VALUE => $this->contact_fields],
-                    [self::NAME => 'assigned_user_link',self::VALUE => $this->user_fields],
-                    [self::NAME => 'notes',             self::VALUE => $this->note_fields]
-                ];
+            //API: getEntry($module, $id, $select_fields = [], $related_fields = [])
+            $module         = self::CASES_MODULE_PRIMARY;
+            $id             = $case_id;
+            $select_fields  = $this->case_fields;
+            $related_fields = [
+                [self::NAME => 'aop_case_updates', self::VALUE => $this->case_update_fields],
+                [self::NAME => 'notes',            self::VALUE => $this->note_fields       ],
+            ];
 
-            $caseAttributes = $this->restClient->getEntry(self::CASES_MODULE_PRIMARY, $case_id, $this->case_fields, [[self::NAME => 'aop_case_updates', self::VALUE => $this->case_update_fields], [self::NAME => 'notes', self::VALUE => $this->note_fields],]);
-            $case = new SugarCase($caseAttributes[self::ENTRY_LIST][0], $caseAttributes[self::RELATIONSHIP_LIST][0]);
-            $allUpdates = $this->restClient->getRelationships(self::CASES_MODULE_PRIMARY, $case_id, 'aop_case_updates', '', $this->case_update_fields, $caseUpdatesFieldsArray);
+            $case_record = $this->restClient->getEntry($module, $id, $select_fields, $related_fields);
 
-            $case->aop_case_updates = [];
+            //API: SugarObject::__construct($case, $relations = [])
+            $case       = $case_record[self::ENTRY_LIST][0];
+            $relations  = $case_record[self::RELATIONSHIP_LIST][0];
+
+            $case_SugarObject = new SugarCase($case,$relations);
+
+            //identify and then append the case-updates data (i.e. the chat messsaging attributes)
+            $case_SugarObject->aop_case_updates = [];
+
+
+            $related_module_link_name_to_fields_array = [
+                [self::NAME => self::CONTACT,       self::VALUE => $this->contact_fields],
+                [self::NAME => 'assigned_user_link',self::VALUE => $this->user_fields   ],
+                [self::NAME => 'notes',             self::VALUE => $this->note_fields   ],
+            ];
+
+            $allUpdates = $this->restClient->getRelationships(self::CASES_MODULE_PRIMARY, $case_id, 'aop_case_updates', '', $this->case_update_fields, $related_module_link_name_to_fields_array);
+
             foreach ($allUpdates[self::ENTRY_LIST] as $index => $sugarupdate) {
                 $update = new SugarUpdate($sugarupdate, $allUpdates[self::RELATIONSHIP_LIST][$index]);
 
@@ -284,12 +354,24 @@ class CasesConnection extends SuiteCRMRestClientInit
                     continue;
                 }
 
-                $case->aop_case_updates[] = $update;
+                $case_SugarObject->aop_case_updates[] = $update;
             }
 
-            $caseDTO = new CaseDTO($case);
-            $caseDTO->related = $this->getRelatedModule($case->parent_type, $case->parent_id);
-            $caseDTO->files = $this->getRelatedDocuments($case->id);
+            //This case's status and its directly related fields are handled by a link to a case status module entry
+            $module             = self::CASE_STATUS_MODULE;
+            $id                 = $case_SugarObject->mt_case_status_id_c;
+            $select_fields      = $this->case_status_fields;
+            $case_status_record = $this->restClient->getEntry($module, $id, $select_fields);
+
+            //API: SugarObject::__construct($object, $relations = [])
+            $object             = $case_status_record[self::ENTRY_LIST][0];
+            $relations          = $case_status_record[self::RELATIONSHIP_LIST][0];
+            $case_status_SugarObject = new SugarObject($object,$relations);
+            $caseDTO            = new CaseDTO($case_SugarObject, $case_status_SugarObject);
+
+            //append related material and files
+            $caseDTO->related   = $this->getRelatedModule(   $case_SugarObject->parent_type, $case_SugarObject->parent_id);
+            $caseDTO->files     = $this->getRelatedDocuments($case_SugarObject->id);
 
             /*
              * Set chat bubble order: Newest message on the bottom – same as on your phone
@@ -412,24 +494,23 @@ class CasesConnection extends SuiteCRMRestClientInit
         return $result;
     }
 
-    public function enquiryCompletion($case_id, $contact_id)
+    public function enquiryCompletion($case_id, $contact)
     {
         \Drupal::logger('main')->debug(__METHOD__);
         $result = new Result();
 
         $data = [
             'id'                             => $case_id,
-            self::STATE                      => 'Closed',
             self::CASE_STATUS_FIELD          => $this->getIdByName(self::CASE_STATUS_USER_CLOSED,          self::CASE_STATUS_MODULE),
-            self::EXTERNAL_CASE_STATUS_FIELD => $this->getIdByName(self::EXTERNAL_CASE_STATUS_USER_CLOSED, self::EXTERNAL_CASE_STATUS_MODULE),
             self::DATE_CLOSED                => date('Y-m-d H:i:s'),
-            'type'                           => self::CASE_TYPE_ENQUIRY,
+            'modified_user_id'               => $contact->crm_id
+
         ];
 
         $result->success = $this->restClient->setEntry(self::CASES_MODULE_PRIMARY, $data);
 
         if ($result->success) {
-            $this->postUpdate($case_id, 'Enquiry closed (resolved)', $contact_id);
+            $this->postUpdate($case_id, 'Enquiry closed (resolved)', $contact->id);
         } else {
             $result->message = 'Enquiry could not be closed at this time.';
             $customMessengerService = \Drupal::service('det.service');
@@ -439,6 +520,34 @@ class CasesConnection extends SuiteCRMRestClientInit
 
         return $result;
     }
+
+    public function enquiryReOpen($case_id, $contact)
+    {
+        \Drupal::logger('main')->debug(__METHOD__);
+        $result = new Result();
+
+        $data = [
+            'id'                             => $case_id,
+            self::CASE_STATUS_FIELD          => $this->getIdByName('In Progress',  self::CASE_STATUS_MODULE),
+            self::DATE_CLOSED                => '',
+            self::DATE_MODIFIED              => date('Y-m-d H:i:s'),
+            'modified_user_id'               => $contact->crm_id
+        ];
+
+        $result->success = $this->restClient->setEntry(self::CASES_MODULE_PRIMARY, $data);
+
+        if ($result->success) {
+            $this->postUpdate($case_id, 'Enquiry re-opened', $contact->id);
+        } else {
+            $result->message = 'Enquiry could not be re-opened at this time.';
+            $customMessengerService = \Drupal::service('det.service');
+            $customMessengerService->set_message($result->message, self::ERROR_MESSAGE);
+
+        }
+
+        return $result;
+    }
+
 
     /**
      * Add a new case into the CRM.
@@ -519,4 +628,17 @@ class CasesConnection extends SuiteCRMRestClientInit
 
         return $result;
     }
+
+    /**
+     *  Get the attributes of the case status to which the given case points
+     *
+     * @param string $case_id A GUID.
+     *
+     * @return array of key-value pairs
+     */
+    public function getCaseStatusAttributes($case_id)
+    {
+
+    }
+
 }

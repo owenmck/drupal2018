@@ -1,10 +1,15 @@
 {% if owncase %}
+{% if case.type == 'Enquiry' %}
+{% if case.is_visible %}
     <div class="row" style="margin: 5px;" >
         <form role="form" id="editCaseForm" name="editCaseForm" class="form" action="#" method="post" enctype="multipart/form-data">
             <input type="hidden" id="case_id" name="case_id" value="{{case.id}}">
 
-            {% if case.state != 'Closed' %}
+            {% if case.state == 'Open' %}
                 <button id="endCase" class="btn btn-sm btn-primary m-t-n-xs" type="submit"><strong>Enquiry resolved</strong></button>
+            {% endif %}
+            {% if case.portal_status == 'Resolved' %}
+                <button id="reopenCase" class="btn btn-sm btn-primary m-t-n-xs" type="submit"><strong>Re-open enquiry</strong></button>
             {% endif %}
         </form>
     </div>
@@ -26,20 +31,22 @@
                             </tr>
                             <tr>
                                 <th>Status</th>
-                                <td>{{ case.status }}</td>
+                                <td>{{ case.portal_status }}</td>
                             </tr>
                             <tr>
-                                <th>Date Created </th>
+                                <th>Created</th>
                                 <td>
-                                    {{case.created_date}}
+                                    {{case.created_by}}{% if case.created_by %} by {{ case.created_by }}{% endif %}
                                 </td>
                             </tr>
+                            {% if case.portal_status == 'Resolved' %}
                             <tr>
-                                <th>Date Modified </th>
+                                <th>Modified</th>
                                 <td>
-                                    {{case.modified_date}}
+                                    {{case.modified_date}}{% if case.modified_by %} by {{ case.modified_by }}{% endif %}
                                 </td>
                             </tr>
+                            {% endif %}
                             <tr>
                                 <th>Category</th>
                                 <td>{{ case.category }}</td>
@@ -185,4 +192,6 @@
             {% endif %}
         </div>
     </div>
+{% endif %}
+{% endif %}
 {% endif %}

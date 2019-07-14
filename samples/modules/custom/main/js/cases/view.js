@@ -173,6 +173,7 @@ jQuery(document).ready(function ($) {
     //end of Dropzone code
 
     handleEndCase(caseId);
+    handleReopenCase(caseId);
 
    /*
    Knowledge base elements come in via ajax, packed in json, from the Report server.
@@ -281,7 +282,7 @@ function addCaseUpdate(caseId) {
 }
 
 /**
- * User has clicked the "Enquiry resolved" button in the chat discussion panel.
+ * User has clicked the "Enquiry resolved".
  *
  * Post captured json data back to Controller::endCase
  * @uses jQuery.post(URL,data,function(data,status,xhr),dataType);
@@ -292,6 +293,22 @@ function handleEndCase(caseId)
     jQuery('#endCase').click(function () {
         jQuery.blockUI( { message: '<div style="font-size: 18px; font-weight:600;">Processing...</div>'} );
         jQuery.post( 'endCase', { case_id: caseId }).done(function() { location.reload(true); });
+        return false;
+    });
+}
+
+/**
+ * User has clicked the "Re-open Enquiry" button.
+ *
+ * Post captured json data back to Controller::reopenCase
+ * @uses jQuery.post(URL,data,function(data,status,xhr),dataType);
+ *
+ */
+function handleReopenCase(caseId)
+{
+    jQuery('#reopenCase').click(function () {
+        jQuery.blockUI( { message: '<div style="font-size: 18px; font-weight:600;">Processing...</div>'} );
+        jQuery.post( 'reopenCase', { case_id: caseId }).done(function() { location.reload(true); });
         return false;
     });
 }

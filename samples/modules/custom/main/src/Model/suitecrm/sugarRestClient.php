@@ -202,6 +202,16 @@ class sugarRestClient {
         return $result;
     }
 
+    /**
+     * Retrieves a single CRM record based on record ID.
+     *
+     * @param string $module         The name of the module from which to retrieve records. Note: This is the modules key which may not be the same as the modules display name.
+     * @param string $id             The ID of the record to retrieve.
+     * @param array  $select_fields  A list of fields to be returned in the results. Specifying an empty array will return all fields.
+     * @param array  $related_fields A list of link names and the fields to be returned for each link.
+     *
+     * @return array|bool            The call result including result.entry_list (the record's name-value pair for the simple datatypes excluding the link field data) and result.relationship_list (the record's related field data).
+     */
     public function getEntry($module, $id, $select_fields = [], $related_fields = []) {
         $result = false;
 

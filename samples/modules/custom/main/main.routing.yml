@@ -257,6 +257,15 @@ main.endCase:
     _permission: 'access content'
     _user_is_logged_in: 'TRUE'
 
+main.reopenCase:
+  path: '/enquiries/enquiry/reopenCase'
+  defaults:
+    _controller: '\Drupal\main\Controller\CasesController::reopenCase'
+    _title: 'Reopen Enquiry'
+  requirements:
+    _permission: 'access content'
+    _user_is_logged_in: 'TRUE'
+
 main.notifications.fetchNotification:
   path: '/messages/fetchNotification'
   defaults:

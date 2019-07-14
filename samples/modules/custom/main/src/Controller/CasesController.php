@@ -30,17 +30,31 @@ class CasesController extends ApplicationController {
 
         $casesConnection = CasesConnection::getInstance();
         $caseBasics = $casesConnection->getCaseBasicAttributes($case_id, ['account_id']);
+
         $renderArray[self::OWN] = ($this->account->id == $caseBasics['account_id']['value']);
         $renderArray[self::CRM_CASE] = $casesConnection->getCase($case_id, $renderArray[self::OWN]);
 
-        if (!$renderArray[self::OWN]) {
+        if (
+            $renderArray[self::OWN] &&
+            $renderArray[self::CRM_CASE]->type == 'Enquiry' &&
+            $renderArray[self::CRM_CASE]->is_visible
+        ) {
+            if ($renderArray[self::CRM_CASE]->state == 'Closed') {
+                $customMessengerService = \Drupal::service('det.service');
+
+                if ($renderArray[self::CRM_CASE]->portal_status == 'Resolved') {
+                    $customMessengerService->set_message('This enquiry has been resolved. You are welcome to re-open it.', 'info');
+                } else {
+                    $customMessengerService->set_message('This enquiry is closed. Contact DET for further information.', 'info');
+                }
+            } else {
+                // All good: enquiry is from this RTO, it is visible and open.
+            }
+        } else {
             $uid = \Drupal::currentUser()->id();
-            \Drupal::logger('main')->error(__METHOD__ . ': user ' . $uid . ' from organisation ' . $this->account->name . ' (' . $this->account->to_id_c . '), attempted to fetch other organisation\'s case ' . $case_id);
+            \Drupal::logger('main')->error('user ' . $uid . ' from organisation ' . $this->account->name . ' (' . $this->account->to_id_c . '), tried to open an unavailable case ' . $case_id);
             $customMessengerService = \Drupal::service('det.service');
             $customMessengerService->set_message('No data is available.', self::ERROR_MESSAGE);
-        } elseif ($renderArray[self::CRM_CASE]->state == 'Closed' && $renderArray[self::CRM_CASE]->type == 'Enquiry') {
-            $customMessengerService = \Drupal::service('det.service');
-            $customMessengerService->set_message('This enquiry has been resolved. Contact DET for further information.', 'warning');
         }
 
         return $renderArray;
@@ -533,6 +547,21 @@ class CasesController extends ApplicationController {
         if (!empty($case_id)) {
             $casesConnection = CasesConnection::getInstance();
             $result = $casesConnection->enquiryCompletion($case_id, $this->contact->id);
+        }
+
+        $response = new Response();
+        $response->headers->set(self::CONTENT_TYPE, self::TYPE_JSON);
+        $response->setContent(json_encode($result));
+        return $response;
+    }
+
+    public function reopenCase(Request $request) {
+        $result = new Result();
+        $case_id = $request->get(self::CASE_ID);
+
+        if (!empty($case_id)) {
+            $casesConnection = CasesConnection::getInstance();
+            $result = $casesConnection->enquiryReOpen($case_id, $this->contact->crm_id);
         }
 
         $response = new Response();
